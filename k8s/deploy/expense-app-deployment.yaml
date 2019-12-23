@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: expense-app
+    labels:
+        app: expense-tracker
+        tier: app
+spec:
+    template:
+        metadata:
+            name: expense-app
+            labels:
+                app: expense-tracker
+                tier: app
+        spec:
+            containers:
+            - name: expense-app
+              image: acrawley08/expense-app:v1.1.1
+              envFrom:
+                - configMapRef:
+                    name: expense-app-config
+              volumeMounts:
+                - name: tz-config
+                  mountPath: /etc/localtime
+            volumes:
+            - name: tz-config
+              hostPath:
+                path: /usr/share/zoneinfo/Canada/Eastern
+    replicas: 1
+    selector:
+        matchLabels:
+            app: expense-tracker
+            tier: app

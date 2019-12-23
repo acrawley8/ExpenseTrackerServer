@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: expense-app-config
+data:
+    NODE_ENV: dev
+    mongoURI: 'mongodb://expense:passw0rd@192.168.0.20:30017/expense?retryWrites=true'

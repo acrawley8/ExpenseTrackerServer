@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: mongo
+    labels:
+        app: expense-tracker
+        tier: db
+spec:
+    template:
+        metadata:
+            name: mongo
+            labels:
+                app: expense-tracker
+                tier: db
+        spec:
+            containers:
+            - name: mongo
+              image: andresvidal/rpi3-mongodb3
+              env:
+              - name: MONGODB_AUTH
+                value: "true"
+              volumeMounts:
+              - name: mongo-storage
+                mountPath: /data/db
+              - name: tz-config
+                mountPath: /etc/localtime
+            volumes:
+            - name: mongo-storage
+              persistentVolumeClaim:
+                claimName: mongo-pvc
+            - name: tz-config
+              hostPath:
+                path: /usr/share/zoneinfo/Canada/Eastern
+    replicas: 1
+    selector:
+        matchLabels:
+            app: expense-tracker
+            tier: db
