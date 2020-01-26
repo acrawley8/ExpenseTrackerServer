@@ -7,7 +7,7 @@ require('./models/Expense');
 require('./models/Config');
 require('./models/Type');
 
-mongoose.connect(keys.mongoURI, { useNewUrlParser: true }).catch(error => {console.log("Error connecting to DB: ", error)});
+mongoose.connect(keys.mongoURI, { useNewUrlParser: true, reconnectTries: 5, reconnectInveral: 1000 }).catch(error => {console.log("Error connecting to DB: ", error)});
 
 const app = express();
 
@@ -19,7 +19,7 @@ require('./routes/typeRoutes.js')(app);
 if(keys.NODE_ENV === 'prod') {
 	// Serve static production assets from React app
 	app.use(express.static('client/build'));
-	
+
 	// Refer references to routes Node doesn't understand to React Router
 	const path = require('path');
 	app.get('*', (request, response) => {
