@@ -15,7 +15,7 @@ spec:
         spec:
             containers:
             - name: expense-app
-              image: acrawley08/expense-app:v1.1.7
+              image: acrawley08/expense-app:v1.1.8
               envFrom:
                 - configMapRef:
                     name: expense-app-config
