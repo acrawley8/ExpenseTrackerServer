@@ -12,9 +12,9 @@ module.exports = (app) => {
         if(month && year){
             const startDate = new Date(year, month-1, 1);
             const endDate = new Date(year, month, 1);
-			
+
 			var sort = { date: 'ascending' };
-			
+
 			switch(sortBy) {
 				case "date desc":
 					sort = { date: 'descending' };
@@ -33,13 +33,13 @@ module.exports = (app) => {
         response.status(200).send(results);
     });
 
-    app.put('/api/expense', async (request, response) => {        
+    app.put('/api/expense', async (request, response) => {
         const { value, type, date, description } = request.body;
 
         const expense = new Expense({
             value, type, date, description
         });
-        
+
         try{
             await expense.save();
         } catch(error) {
@@ -104,7 +104,7 @@ module.exports = (app) => {
                 const dbLookupResult = await Expense.aggregate([
                     {
                         $match: {
-                            date: { "$gte": startDate, "$lt": endDate }                            
+                            date: { "$gte": startDate, "$lt": endDate }
                         }
                     },
                     {
@@ -113,7 +113,7 @@ module.exports = (app) => {
                             value: { $sum: "$value" }
                         }
                     }
-                ]);  
+                ]);
 
                 if(dbLookupResult[0]) {
                     totalExpenses = dbLookupResult[0].value;
@@ -129,12 +129,50 @@ module.exports = (app) => {
                     errorMessage: error
                 });
                 return;
-            }         
+            }
         }
-        
+
         response.status(200).send({
             total: totalExpenses,
             remaining: totalRemaining
         });
+    });
+
+    app.get('/api/expense/aggregate/:month/:year', async(request, response) => {
+      const { month, year } = request.params;
+
+      if(month && year) {
+        const startDate = new Date(year, month-1, 1);
+        const endDate = new Date(year, month, 1);
+
+        try {
+          const dbLookupResult = await Expense.aggregate([
+            {
+              $match: {
+                date: { "$gte": startDate, "$lt": endDate }
+              }
+            },
+            {
+              $group: {
+                _id: '$type',
+                total: { $sum: '$value' }
+              }
+            },
+            {
+              $sort: {
+                '_id': 1
+              }
+            }
+          ]);
+
+          response.status(200).send(dbLookupResult);
+        } catch(error) {
+          console.log(error);
+          response.status(500).send({
+            errorMessage: error
+          });
+          return;
+        }
+      }
     });
 }
