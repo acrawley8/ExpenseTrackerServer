@@ -160,7 +160,7 @@ module.exports = (app) => {
             },
             {
               $sort: {
-                '_id': 1
+                total: -1
               }
             }
           ]);
